@@ -1,4 +1,4 @@
-import { HTML_CONTENT } from '../html/html-content';
+import { HTML_CONTENT } from '../html/html-content.js';
 import { CSS_CONTENT } from '../styles/main.css.js';
 
 // Cloudflare Worker for Hand-Based Pong Game with AI and Leaderboard

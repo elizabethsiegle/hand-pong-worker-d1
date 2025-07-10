@@ -1,5 +1,5 @@
-import { CSS_CONTENT } from '../styles/main.css';
-import { GAME_SCRIPT } from './game-script';
+import { CSS_CONTENT } from '../styles/main.css.js';
+import { MAIN_SCRIPT } from '../game/main.js';
 
 export const HTML_CONTENT = `<!DOCTYPE html>
 <html lang="en">
@@ -57,9 +57,9 @@ export const HTML_CONTENT = `<!DOCTYPE html>
             <button id="backToMenuButton">🏠 Main Menu</button>
         </div>
     </div>
-    
+
     <script type="module">
-${GAME_SCRIPT}
+        ${MAIN_SCRIPT}
     </script>
 </body>
 </html>`;
