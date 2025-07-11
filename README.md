@@ -1,4 +1,5 @@
 ### Hand-Pong--AI-powered Hand-tracking Pong game!
+![2 player hand pong screenshot](/Users/lizzie/Desktop/demos/hand-pong/lizziemikkelhandpong.png)
 
 Control a real-time game of Pong via your hand or play against a friend (or yourself) feat. 3 difficulty levels! 
 
