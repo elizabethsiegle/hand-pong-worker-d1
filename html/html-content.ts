@@ -57,6 +57,14 @@ export const HTML_CONTENT = `<!DOCTYPE html>
             <button id="backToMenuButton">🏠 Main Menu</button>
         </div>
     </div>
+    
+    <!-- Sticky Footer -->
+    <footer id="gameFooter">
+        made w/ <span class="heart">♥</span> in sf🌉 w/ <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker/web_js">mediapipe handlandmarker</a>, <a href="https://developers.cloudflare.com/workers/">cloudflare workers</a>, <a href="https://developers.cloudflare.com/workers-ai/">workers ai</a>, <a href="https://developers.cloudflare.com/d1/">d1</a>. 
+        <a href="https://github.com/elizabethsiegle/hand-pong-worker-d1" target="_blank" rel="noopener">
+            👩🏻‍💻code: here on github
+        </a>
+    </footer>
 
     <script type="module">
         ${MAIN_SCRIPT}
