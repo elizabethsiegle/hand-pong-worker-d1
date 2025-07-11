@@ -22,6 +22,9 @@ class PhysicsEngine {
         this.game.ball.vx *= speedMultiplier;
         this.game.ball.vy *= speedMultiplier;
         
+        // Reset last hitter when ball resets
+        this.game.lastHitter = null;
+        
         this.game.ball.history = [
             { x: this.game.ball.x, y: this.game.ball.y },
             { x: this.game.ball.x, y: this.game.ball.y },
@@ -77,6 +80,11 @@ class PhysicsEngine {
             this.game.ball.y >= this.game.paddle1.y && this.game.ball.y <= this.game.paddle1.y + this.game.paddle1.height &&
             this.game.ball.vx < 0) {
             
+            // Prevent consecutive hits from the same paddle
+            if (this.game.lastHitter === 'paddle1') {
+                return;
+            }
+            
             this.game.ball.x = this.game.paddle1.x + this.game.paddle1.width + this.game.ball.radius;
             
             const hitPos = (this.game.ball.y - this.game.paddle1.y) / this.game.paddle1.height;
@@ -87,12 +95,20 @@ class PhysicsEngine {
             
             this.game.ball.vx += (Math.random() - 0.5) * 50;
             this.game.ball.vy += (Math.random() - 0.5) * 100;
+            
+            // Track that paddle1 last hit the ball
+            this.game.lastHitter = 'paddle1';
         }
         
         // Right paddle collision
         if (this.game.ball.x + this.game.ball.radius >= this.game.paddle2.x &&
             this.game.ball.y >= this.game.paddle2.y && this.game.ball.y <= this.game.paddle2.y + this.game.paddle2.height &&
             this.game.ball.vx > 0) {
+            
+            // Prevent consecutive hits from the same paddle
+            if (this.game.lastHitter === 'paddle2') {
+                return;
+            }
             
             this.game.ball.x = this.game.paddle2.x - this.game.ball.radius;
             
@@ -104,6 +120,9 @@ class PhysicsEngine {
             
             this.game.ball.vx += (Math.random() - 0.5) * 50;
             this.game.ball.vy += (Math.random() - 0.5) * 100;
+            
+            // Track that paddle2 last hit the ball
+            this.game.lastHitter = 'paddle2';
         }
     }
     
@@ -124,12 +143,13 @@ class PhysicsEngine {
                 hand.landmarks[17]  // Pinky base
             ];
             
-            // Calculate smaller palm-focused bounding box
+            // Calculate smaller palm-focused bounding box with mirrored coordinates
             let minX = Infinity, maxX = -Infinity;
             let minY = Infinity, maxY = -Infinity;
             
             palmLandmarks.forEach(landmark => {
-                const x = this.game.gameCanvas.width - (landmark.x * this.game.gameCanvas.width);
+                // Mirror the X coordinate to match the mirrored video display
+                const x = (1 - landmark.x) * this.game.gameCanvas.width;
                 const y = landmark.y * this.game.gameCanvas.height;
                 
                 minX = Math.min(minX, x);
@@ -180,18 +200,23 @@ class PhysicsEngine {
                 const ballMovingLeft = this.game.ball.vx < 0;
                 const ballMovingRight = this.game.ball.vx > 0;
                 
+                // Create unique identifiers for each hand
+                const leftHandId = 'leftHand';
+                const rightHandId = 'rightHand';
+                
                 // Only allow collision if ball is moving toward the hand and hand is in correct area
+                // AND the same hand didn't hit last time
                 if (this.game.gameMode === 'single') {
-                    if (isLeftSide && (ballMovingLeft || Math.abs(this.game.ball.vx) < 200)) {
-                        this.handleHandHit(hand, 'left', palmCenterX, palmCenterY);
+                    if (isLeftSide && (ballMovingLeft || Math.abs(this.game.ball.vx) < 200) && this.game.lastHitter !== leftHandId) {
+                        this.handleHandHit(hand, 'left', palmCenterX, palmCenterY, leftHandId);
                         return true;
                     }
                 } else if (this.game.gameMode === 'multi') {
-                    if (isLeftSide && (ballMovingLeft || Math.abs(this.game.ball.vx) < 200)) {
-                        this.handleHandHit(hand, 'left', palmCenterX, palmCenterY);
+                    if (isLeftSide && (ballMovingLeft || Math.abs(this.game.ball.vx) < 200) && this.game.lastHitter !== leftHandId) {
+                        this.handleHandHit(hand, 'left', palmCenterX, palmCenterY, leftHandId);
                         return true;
-                    } else if (isRightSide && (ballMovingRight || Math.abs(this.game.ball.vx) < 200)) {
-                        this.handleHandHit(hand, 'right', palmCenterX, palmCenterY);
+                    } else if (isRightSide && (ballMovingRight || Math.abs(this.game.ball.vx) < 200) && this.game.lastHitter !== rightHandId) {
+                        this.handleHandHit(hand, 'right', palmCenterX, palmCenterY, rightHandId);
                         return true;
                     }
                 }
@@ -201,7 +226,7 @@ class PhysicsEngine {
         return false;
     }
     
-    handleHandHit(hand, side, handCenterX, handCenterY) {
+    handleHandHit(hand, side, handCenterX, handCenterY, handId) {
         const deltaX = this.game.ball.x - handCenterX;
         const deltaY = this.game.ball.y - handCenterY;
         const angle = Math.atan2(deltaY, deltaX);
@@ -221,7 +246,10 @@ class PhysicsEngine {
         this.game.ball.vx += (Math.random() - 0.5) * 100;
         this.game.ball.vy += (Math.random() - 0.5) * 150;
         
-        console.log('Hand hit detected on ' + side + ' side!');
+        // Track which hand last hit the ball
+        this.game.lastHitter = handId;
+        
+        console.log('Hand hit detected on ' + side + ' side! Last hitter: ' + handId);
     }
     
     limitBallSpeed() {
